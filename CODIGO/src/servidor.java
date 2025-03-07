@@ -5,7 +5,7 @@ import java.util.*;
 
 public class servidor {
     private static final int PORTA = 12345;
-    private static final String CAMINHO_BASE = "C:\\Users\\pablo\\Documents\\OAT_REDES\\OAT_REDES_DIRETORIO";
+    private static final String CAMINHO_BASE = "D:\\Faculdade\\OAT_S\\OAT_DE_REDES\\OAT_REDES_DIRETORIO";
     private static final String[] USUARIOS = {"usuario1", "usuario2", "usuario3"};
     private static final String[] SENHAS = {"senha1", "senha2", "senha3"};
     private static final String[] SUBPASTAS = {"pdf", "jpg", "txt"};
@@ -33,8 +33,7 @@ public class servidor {
         public void run() {
             try (ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
                  ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream())) {
-
-                // Autenticação do usuário
+                
                 String usuario = (String) input.readObject();
                 String senha = (String) input.readObject();
 
@@ -70,16 +69,32 @@ public class servidor {
             }
         }
 
+        private String listarDiretorios(Path caminho, int nivel) throws IOException {
+            StringBuilder sb = new StringBuilder();
+            String indentacao = "    ".repeat(nivel);
+
+            if (Files.isDirectory(caminho)) {
+                sb.append(indentacao).append("└── ").append(caminho.getFileName()).append("/\n");
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(caminho)) {
+                    for (Path entry : stream) {
+                        sb.append(listarDiretorios(entry, nivel + 1));
+                    }
+                }
+            } else {
+                sb.append(indentacao).append("└── ").append(caminho.getFileName()).append("\n");
+            }
+
+            return sb.toString();
+        }
+
         private void gerenciarArquivos(String usuario, ObjectInputStream input, ObjectOutputStream output) throws IOException, ClassNotFoundException {
             while (true) {
                 String comando = (String) input.readObject();
                 if (comando.equals("ENVIAR")) {
-
                     String nomeArquivo = (String) input.readObject();
                     long tamanhoArquivo = (long) input.readObject();
 
                     String extensao = nomeArquivo.substring(nomeArquivo.lastIndexOf(".") + 1).toLowerCase();
-
 
                     String subpasta = null;
                     for (String sp : SUBPASTAS) {
@@ -109,22 +124,16 @@ public class servidor {
                     output.writeObject("ARQUIVO_RECEBIDO");
                     System.out.println("Arquivo salvo: " + caminhoArquivo.toString());
                 } else if (comando.equals("BAIXAR")) {
-
                     String nomeArquivo = (String) input.readObject();
                     Path caminhoArquivo = null;
                     boolean arquivoEncontrado = false;
 
-                    for (String user : USUARIOS) {
-                        for (String subpasta : SUBPASTAS) {
-                            caminhoArquivo = Paths.get(CAMINHO_BASE, user, subpasta, nomeArquivo);
-                            System.out.println("Procurando arquivo em: " + caminhoArquivo.toString());
-                            if (Files.exists(caminhoArquivo)) {
-                                arquivoEncontrado = true;
-                                System.out.println("Arquivo encontrado em: " + caminhoArquivo.toString());
-                                break;
-                            }
+                    for (String subpasta : SUBPASTAS) {
+                        caminhoArquivo = Paths.get(CAMINHO_BASE, usuario, subpasta, nomeArquivo);
+                        if (Files.exists(caminhoArquivo)) {
+                            arquivoEncontrado = true;
+                            break;
                         }
-                        if (arquivoEncontrado) break;
                     }
 
                     if (arquivoEncontrado) {
@@ -143,6 +152,11 @@ public class servidor {
                         output.writeObject("ARQUIVO_NAO_ENCONTRADO");
                         System.out.println("Arquivo não encontrado: " + nomeArquivo);
                     }
+                } else if (comando.equals("LISTAR")) {
+                    Path caminhoBase = Paths.get(CAMINHO_BASE);
+                    String estrutura = listarDiretorios(caminhoBase, 0);
+                    output.writeObject("ESTRUTURA_DIRETORIOS");
+                    output.writeObject(estrutura);
                 } else if (comando.equals("SAIR")) {
                     break;
                 }

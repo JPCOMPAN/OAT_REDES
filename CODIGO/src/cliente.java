@@ -25,7 +25,7 @@ public class cliente {
             if (resposta.equals("LOGIN_SUCESSO")) {
                 System.out.println("Login bem-sucedido!");
                 while (true) {
-                    System.out.println("Escolha uma opção: ENVIAR, BAIXAR, SAIR");
+                    System.out.println("Escolha uma opção: ENVIAR, BAIXAR, LISTAR, SAIR");
                     String comando = scanner.nextLine();
                     output.writeObject(comando);
                     output.flush();
@@ -71,7 +71,6 @@ public class cliente {
                             }
 
                             if (arquivoSalvar.exists()) {
-
                                 System.out.println("Arquivo já existe no caminho: " + arquivoSalvar.getAbsolutePath());
                                 System.out.println("Tamanho do arquivo existente: " + arquivoSalvar.length() + " bytes");
 
@@ -82,7 +81,6 @@ public class cliente {
                                 String opcao = scanner.nextLine();
 
                                 if (opcao.equals("1")) {
-
                                     try (FileOutputStream fileOutput = new FileOutputStream(arquivoSalvar)) {
                                         byte[] buffer = new byte[4096];
                                         int bytesRead;
@@ -95,7 +93,6 @@ public class cliente {
                                     }
                                     System.out.println("Arquivo sobrescrito com sucesso.");
                                 } else if (opcao.equals("2")) {
-                                    // Escolher um novo nome
                                     System.out.print("Digite o novo nome do arquivo: ");
                                     String novoNome = scanner.nextLine();
                                     File novoArquivo = new File(arquivoSalvar.getParent(), novoNome);
@@ -114,7 +111,6 @@ public class cliente {
                                     System.out.println("Opção inválida. Download cancelado.");
                                 }
                             } else {
-
                                 try (FileOutputStream fileOutput = new FileOutputStream(arquivoSalvar)) {
                                     byte[] buffer = new byte[4096];
                                     int bytesRead;
@@ -129,6 +125,17 @@ public class cliente {
                             }
                         } else {
                             System.out.println("Arquivo não encontrado no servidor.");
+                        }
+                    } else if (comando.equals("LISTAR")) {
+                        output.writeObject("LISTAR");
+                        output.flush();
+
+                        // Variável renomeada para evitar conflito de escopo
+                        String respostaListar = (String) input.readObject();
+                        if (respostaListar.equals("ESTRUTURA_DIRETORIOS")) {
+                            String estrutura = (String) input.readObject();
+                            System.out.println("Estrutura de diretórios e arquivos:");
+                            System.out.println(estrutura);
                         }
                     } else if (comando.equals("SAIR")) {
                         break;
