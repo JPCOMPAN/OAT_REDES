@@ -145,7 +145,7 @@ public class cliente {
                 System.out.println("Login falhou. Usuário ou senha incorretos.");
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Não existe conexão com o servidor.");
         }
     }
 }
