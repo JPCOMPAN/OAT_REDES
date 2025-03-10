@@ -4,15 +4,15 @@ import java.nio.file.*;
 import java.util.*;
 
 public class servidor {
-    private static final int PORTA = 12345;
-    private static final String CAMINHO_BASE = "D:\\Faculdade\\OAT_S\\OAT_DE_REDES\\OAT_REDES_DIRETORIO";
-    private static final String[] USUARIOS = {"usuario1", "usuario2", "usuario3"};
-    private static final String[] SENHAS = {"senha1", "senha2", "senha3"};
-    private static final String[] SUBPASTAS = {"pdf", "jpg", "txt"};
+    private static final int porta = 12345;
+    private static final String caminho_base = "C:\\Users\\pablo\\Documents\\OAT_REDES\\OAT_REDES_DIRETORIO";
+    private static final String[] usuarios = {"usuario1", "usuario2", "usuario3"};
+    private static final String[] senhas = {"senha1", "senha2", "senha3"};
+    private static final String[] subPastas = {"pdf", "jpg", "txt"};
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORTA)) {
-            System.out.println("Servidor iniciado na porta " + PORTA);
+        try (ServerSocket serverSocket = new ServerSocket(porta)) {
+            System.out.println("Servidor iniciado na porta " + porta);
 
             while (true) {
                 Socket socket = serverSocket.accept();
@@ -38,8 +38,8 @@ public class servidor {
                 String senha = (String) input.readObject();
 
                 boolean loginConcluido = false;
-                for (int i = 0; i < USUARIOS.length; i++) {
-                    if (usuario.equals(USUARIOS[i]) && senha.equals(SENHAS[i])) {
+                for (int i = 0; i < usuarios.length; i++) {
+                    if (usuario.equals(usuarios[i]) && senha.equals(senhas[i])) {
                         loginConcluido = true;
                         break;
                     }
@@ -58,10 +58,10 @@ public class servidor {
         }
 
         private void criarPastasUsuario(String usuario) throws IOException {
-            Path caminhoPasta = Paths.get(CAMINHO_BASE, usuario);
+            Path caminhoPasta = Paths.get(caminho_base, usuario);
             if (!Files.exists(caminhoPasta)) {
                 Files.createDirectories(caminhoPasta);
-                for (String subpasta : SUBPASTAS) {
+                for (String subpasta : subPastas) {
                     Path pathSubpasta = Paths.get(caminhoPasta.toString(), subpasta);
                     Files.createDirectories(pathSubpasta);
                 }
@@ -97,7 +97,7 @@ public class servidor {
                     String extensao = nomeArquivo.substring(nomeArquivo.lastIndexOf(".") + 1).toLowerCase();
 
                     String subpasta = null;
-                    for (String sp : SUBPASTAS) {
+                    for (String sp : subPastas) {
                         if (sp.equalsIgnoreCase(extensao)) {
                             subpasta = sp;
                             break;
@@ -106,9 +106,9 @@ public class servidor {
 
                     Path caminhoArquivo;
                     if (subpasta != null) {
-                        caminhoArquivo = Paths.get(CAMINHO_BASE, usuario, subpasta, nomeArquivo);
+                        caminhoArquivo = Paths.get(caminho_base, usuario, subpasta, nomeArquivo);
                     } else {
-                        caminhoArquivo = Paths.get(CAMINHO_BASE, usuario, nomeArquivo);
+                        caminhoArquivo = Paths.get(caminho_base, usuario, nomeArquivo);
                     }
 
                     try (FileOutputStream fileOutput = new FileOutputStream(caminhoArquivo.toFile())) {
@@ -128,8 +128,8 @@ public class servidor {
                     Path caminhoArquivo = null;
                     boolean arquivoEncontrado = false;
 
-                    for (String subpasta : SUBPASTAS) {
-                        caminhoArquivo = Paths.get(CAMINHO_BASE, usuario, subpasta, nomeArquivo);
+                    for (String subpasta : subPastas) {
+                        caminhoArquivo = Paths.get(caminho_base, usuario, subpasta, nomeArquivo);
                         if (Files.exists(caminhoArquivo)) {
                             arquivoEncontrado = true;
                             break;
@@ -153,7 +153,7 @@ public class servidor {
                         System.out.println("Arquivo não encontrado: " + nomeArquivo);
                     }
                 } else if (comando.equals("LISTAR")) {
-                    Path caminhoBase = Paths.get(CAMINHO_BASE);
+                    Path caminhoBase = Paths.get(caminho_base);
                     String estrutura = listarDiretorios(caminhoBase, 0);
                     output.writeObject("ESTRUTURA_DIRETORIOS");
                     output.writeObject(estrutura);

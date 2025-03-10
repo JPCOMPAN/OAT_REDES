@@ -3,11 +3,11 @@ import java.net.*;
 import java.util.*;
 
 public class cliente {
-    private static final String SERVIDOR_IP = "localhost";
-    private static final int PORTA = 12345;
+    private static final String servidor_ip = "localhost";
+    private static final int porta = 12345;
 
     public static void main(String[] args) {
-        try (Socket socket = new Socket(SERVIDOR_IP, PORTA);
+        try (Socket socket = new Socket(servidor_ip, porta);
              ObjectOutputStream output = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
              Scanner scanner = new Scanner(System.in)) {
