@@ -15,7 +15,7 @@ public class cliente {
             if (!realizarLogin(output, input, scanner)) {
                 return;
             }
-            
+
             while (true) {
                 System.out.println("\nEscolha uma opção: ENVIAR, BAIXAR, LISTAR, SAIR");
                 String comando = scanner.nextLine().toUpperCase();
